@@ -21,7 +21,7 @@ makeMultiForecastRegrTask = function(id = deparse(substitute(data)), data, targe
     checkClass(row.names, "POSIXt"),
     checkClass(row.names, "POSIXct")
     )
-  data <- data.frame(row.names = row.names, coredata(data))
+  data = data.frame(row.names = row.names, coredata(data))
 
   if (fixup.data != "no" && all(!is.target.all)) {
     if (is.integer(data[[target]]))

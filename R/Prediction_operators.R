@@ -116,9 +116,6 @@ getPredictionResponse.PredictionMultilabel = function(pred) {
   setColNames(m, pred$task.desc$class.levels)
 }
 
-
-
-
 #' @export
 getPredictionResponse.PredictionMultiForecastRegr = function(pred) {
   if (!any(stri_detect_regex(colnames(pred$data), "^response\\."))){
@@ -130,8 +127,6 @@ getPredictionResponse.PredictionMultiForecastRegr = function(pred) {
     setColNames(m, pred$task.desc$col.names)
   }
 }
-
-
 
 #' @rdname getPredictionResponse
 #' @export

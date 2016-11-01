@@ -455,7 +455,6 @@ getTaskFactorLevels = function(task) {
   lapply(task$env$data[cols], levels)
 }
 
-
 getTaskWeights = function(task) {
   task$weights
 }

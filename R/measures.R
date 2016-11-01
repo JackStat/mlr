@@ -120,10 +120,6 @@ mase = makeMeasure(
   }
 )
 
-
-
-
-
 #' @export measureSSE
 #' @rdname measures
 #' @format none
@@ -142,7 +138,6 @@ mse = makeMeasure(id = "mse", minimize = TRUE, best = 0, worst = Inf,
     measureMSE(pred$data$truth, pred$data$response)
   }
 )
-
 
 #' @export measureMSE
 #' @rdname measures
@@ -688,7 +683,6 @@ measureKAPPA = function(truth, response) {
   # get confusion matrix
   conf.mat = table(truth, response)
   conf.mat = conf.mat / sum(conf.mat)
-
   # observed agreement frequency
   p0 = sum(diag(conf.mat))
 
@@ -730,7 +724,6 @@ measureWKAPPA = function(truth, response) {
   # get weights
   class.values = as.numeric(levels(truth))
   weights = outer(class.values, class.values, FUN = function(x, y) (x - y)^2)
-
   # calculate weighted kappa
   1 - sum(weights * conf.mat) / sum(weights * expected.mat)
 }

@@ -37,10 +37,10 @@ Update a fitted model with new data.
 The row names of the input \code{task} or \code{newdata} are preserved in the output.
 }
 \examples{
-dat <- arima.sim(model = list(ar = c(.5,.2), ma = c(.4), order = c(2,0,1)), n = 100)
-times <- (as.POSIXlt("1992-01-14")) + lubridate::days(1:100)
-dat <- xts::xts(dat,order.by = times, frequency = 1L)
-colnames(dat) <- c("arma_test")
+dat = arima.sim(model = list(ar = c(.5,.2), ma = c(.4), order = c(2,0,1)), n = 100)
+times = (as.POSIXlt("1992-01-14")) + lubridate::days(1:100)
+dat = xts::xts(dat,order.by = times, frequency = 1L)
+colnames(dat) = c("arma_test")
 Timeregr.task = makeForecastRegrTask(id = "test", data = dat,
 target = "arma_test", frequency = 1L)
 arm = makeLearner("fcregr.Arima", h = 1)

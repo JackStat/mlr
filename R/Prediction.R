@@ -36,9 +36,6 @@ makePrediction = function(task.desc, row.names, id, truth, predict.type, predict
   UseMethod("makePrediction")
 }
 
-
-
-
 #' @export
 makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, error = NA_character_) {
   data = namedList(c("id", "truth", "response", "se"))
@@ -203,12 +200,12 @@ makePrediction.TaskDescForecastRegr = function(task.desc, row.names, id, truth, 
   # This will only happen when there is a task with no subset
   #  aka, we predict future values and have to get their times
   if (length(truth) > size.y){
-    sec <- lubridate::dseconds(lubridate::int_diff(as.POSIXct(row.names)))
+    sec = lubridate::dseconds(lubridate::int_diff(as.POSIXct(row.names)))
     # We take the median seconds between intervals as this won't get
     # a wrong day until about 200 months in the future.
-    med_sec <- mean(sec)
+    med_sec = mean(sec)
     start = as.POSIXct(row.names[length(row.names)])
-    row.names <- start + rep(med_sec,size.y) * 1:size.y
+    row.names = start + rep(med_sec,size.y) * 1:size.y
     data$id = NULL
     data$truth = NULL
   } else {
@@ -261,12 +258,12 @@ makePrediction.TaskDescMultiForecastRegr = function(task.desc, row.names, id, tr
   # This will only happen when there is a task with no subset
   #  aka, we predict future values and have to get their times
   if (size.truth > size.y){
-    sec <- lubridate::dseconds(lubridate::int_diff(as.POSIXct(row.names)))
+    sec = lubridate::dseconds(lubridate::int_diff(as.POSIXct(row.names)))
     # We take the median seconds between intervals as this won't get
     # a wrong day until about 200 months in the future.
-    med_sec <- mean(sec)
+    med_sec = mean(sec)
     start = as.POSIXct(row.names[length(row.names)])
-    row.names <- start + rep(med_sec,size.y) * 1:size.y
+    row.names = start + rep(med_sec,size.y) * 1:size.y
     data$id = NULL
     data$truth = NULL
   } else {
@@ -299,7 +296,6 @@ makePrediction.TaskDescMultiForecastRegr = function(task.desc, row.names, id, tr
   )
 }
 
-
 #' @export
 print.Prediction = function(x, ...) {
   catf("Prediction: %i observations", nrow(x$data))
@@ -309,3 +305,4 @@ print.Prediction = function(x, ...) {
   if (!is.na(x$error)) catf("errors: %s", x$error)
   printHead(as.data.frame(x))
 }
+

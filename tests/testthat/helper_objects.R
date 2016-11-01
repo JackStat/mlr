@@ -85,13 +85,13 @@ regr.num.task = makeRegrTask("regrnumtask", data = regr.num.df, target = regr.nu
 
 getSurvData = function(n = 100, p = 10) {
   set.seed(1)
-  beta <- c(rep(1,10),rep(0,p-10))
-  x <- matrix(rnorm(n*p),n,p)
+  beta = c(rep(1,10),rep(0,p-10))
+  x = matrix(rnorm(n*p),n,p)
   colnames(x) = sprintf("x%01i", 1:p)
-  real.time <- -(log(runif(n)))/(10 * exp(drop(x %*% beta)))
-  cens.time <- rexp(n,rate=1/10)
-  status <- ifelse(real.time <= cens.time, TRUE, FALSE)
-  obs.time <- ifelse(real.time <= cens.time,real.time,cens.time) + 1
+  real.time = -(log(runif(n)))/(10 * exp(drop(x %*% beta)))
+  cens.time = rexp(n,rate=1/10)
+  status = ifelse(real.time <= cens.time, TRUE, FALSE)
+  obs.time = ifelse(real.time <= cens.time,real.time,cens.time) + 1
   return(cbind(data.frame(time = obs.time, status = status), x))
 }
 surv.df = getSurvData()
@@ -110,9 +110,9 @@ costsens.task = makeCostSensTask("costsens", data = costsens.feat, costs = costs
 
 ### forecasting
 set.seed(getOption("mlr.debug.seed"))
-fcregr.xts <- arima.sim(model = list(ar = c(.5,.2), ma = c(.4), order = c(2,0,1)), n = 300)
-times <- (as.POSIXlt("1992-01-14")) + lubridate::days(1:300)
-fcregr.xts <- xts::xts(fcregr.xts,order.by = times, frequency = 1L)
+fcregr.xts = arima.sim(model = list(ar = c(.5,.2), ma = c(.4), order = c(2,0,1)), n = 300)
+times = (as.POSIXlt("1992-01-14")) + lubridate::days(1:300)
+fcregr.xts = xts::xts(fcregr.xts,order.by = times, frequency = 1L)
 colnames(fcregr.xts) = "test_data"
 fcregr.target = "test_data"
 fcregr.train.inds = seq(1, 299, 1)

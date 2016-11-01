@@ -46,7 +46,6 @@ predict.WrappedModel = function(object, task, newdata, subset, ...) {
   learner = model$learner
   td = model$task.desc
 
-
   # FIXME: cleanup if cases
   if (missing(newdata)) {
     assertClass(task, classes = "Task")
@@ -87,7 +86,7 @@ predict.WrappedModel = function(object, task, newdata, subset, ...) {
     truth = newdata[, t.col, drop = TRUE]
     if (is.list(truth))
       truth = data.frame(truth)
-      newdata = newdata[, -t.col, drop = FALSE]
+    newdata = newdata[, -t.col, drop = FALSE]
   } else {
     truth = NULL
   }

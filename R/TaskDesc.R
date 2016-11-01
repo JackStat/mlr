@@ -46,14 +46,12 @@ makeTaskDescInternal = function(task, type, id, target, ...) {
   data = task$env$data
   # get classes of feature cols
   cl = vapply(data, function(x) head(class(x), 1L), character(1L))
-  if (task$type != "fcregr")
-    cl = dropNamed(cl, target)
+  cl = dropNamed(cl, target)
   n.feat = c(
     numerics = sum(cl %in% c("integer", "numeric")),
     factors = sum(cl == "factor"),
     ordered = sum(cl == "ordered")
   )
-
   makeS3Obj("TaskDesc",
     id = id,
     type = type,
@@ -63,9 +61,7 @@ makeTaskDescInternal = function(task, type, id, target, ...) {
     has.missings = anyMissing(data),
     has.weights = !is.null(getTaskWeights(task)),
     has.blocking = !is.null(task$blocking)
-    )
-
-
+  )
 }
 
 

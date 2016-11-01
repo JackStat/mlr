@@ -11,7 +11,7 @@ makeForecastRegrTask = function(id = deparse(substitute(data)), data, target,
   assertChoice(fixup.data, choices = c("no", "quiet", "warn"))
   assertFlag(check.data)
 
-  data <- data.frame(row.names = index(data), coredata(data))
+  data = data.frame(row.names = index(data), coredata(data))
 
   if (fixup.data != "no") {
     if (is.integer(data[[target]]))

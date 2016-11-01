@@ -180,9 +180,9 @@ makeResampleDescGrowingCV = function(horizon = 1L , initial.window = 10L, size =
   initial.window.desc = floor(initial.window * size)
   skip.desc = floor(skip * size)
   stops = seq(from = 1, to = size)[initial.window.desc:I(size - horizon)]
-  starts <- rep(1, length(stops))
-  thin <- function(x, skip = 2) {
-    n <- length(x)
+  starts = rep(1, length(stops))
+  thin = function(x, skip = 2) {
+    n = length(x)
     x[seq(1, n, by = skip.desc)]
   }
   if (skip > 0)

@@ -135,7 +135,6 @@ doResampleIteration = function(learner, task, rin, i, measures, weights, model, 
   if (isFailureModel(m))
     err.msgs[1L] = getFailureModelMsg(m)
 
-
   # does a measure require to calculate pred.train?
   ms.train = rep(NA, length(measures))
   ms.test = rep(NA, length(measures))

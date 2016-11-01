@@ -105,7 +105,7 @@ createLagDiffFeatures.xts = function(obj, lag = 0L, difference = 0L, difference.
                                       rep(seasonal.difference,each = length(work.cols)))
 
   if (!is.null(xLagDiff) && !is.null(xSeasonLagDiff)){
-    repeatedCols <- !(colnames(xLagDiff) %in% colnames(xSeasonLagDiff))
+    repeatedCols = !(colnames(xLagDiff) %in% colnames(xSeasonLagDiff))
     x = cbind(xLagDiff[,repeatedCols],xSeasonLagDiff)
   } else if(!is.null(xLagDiff)){
     x = xLagDiff
@@ -158,7 +158,7 @@ createLagDiffFeatures.ForecastRegrTask = function(obj, lag = 0L, difference = 0L
                                 seasonal.difference.lag = seasonal.difference.lag,
                                 frequency = frequency, na.pad = na.pad,
                                 return.nonlag = return.nonlag)
-  data <- as.data.frame(data, row.names = as.character(index(data)))
+  data = as.data.frame(data, row.names = as.character(index(data)))
 
   obj = changeData(obj,data = data)
   if (any(is.null(cols)) || any(cols == target)){
