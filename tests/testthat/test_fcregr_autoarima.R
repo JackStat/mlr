@@ -37,10 +37,10 @@ test_that("fcregr_auto.arima", {
 test_that("fcregr_auto.arima_update",{
   parset.list = list(
     list(),
-    list(use.box.cox = TRUE),
-    list(use.damped.trend = TRUE),
-    list(use.arma.errors = TRUE, use.box.cox = TRUE),
-    list(use.arma.errors = TRUE, use.box.cox = TRUE, use.trend = TRUE)
+    list(max.p = 8),
+    list(stationary = TRUE, max.order = 4),
+    list(seasonal = FALSE),
+    list(allowmean = FALSE, max.d = 3)
   )
   old.predicts.list = list()
 
@@ -53,11 +53,11 @@ test_that("fcregr_auto.arima_update",{
       m = do.call(forecast::auto.arima, pars)
     })
     parset$model = m
-    pars.update = list(y = as.ts(fcregr.update.update))
-    pars.update = c(pars.update,parset)
+    pars.update = list(y = as.ts(fcregr.update.update), model = m)
+    #pars.update = c(pars.update,parset)
     set.seed(getOption("mlr.debug.seed"))
     capture.output({
-      m = do.call(forecast::auto.arima, pars.update)
+      m = do.call(forecast::Arima, pars.update)
     })
     set.seed(getOption("mlr.debug.seed"))
     p = as.numeric(forecast::forecast(m, h = 1L)$mean)

@@ -46,31 +46,48 @@ makeRLearner.fcregr.auto.arima = function() {
 #'@export
 trainLearner.fcregr.auto.arima = function(.learner, .task, .subset, .weights = NULL, ...) {
 
-  data = getTaskData(.task,.subset,target.extra = TRUE)
+  data = getTaskData(.task,.subset, target.extra = TRUE)
   data$target = ts(data$target, start = 1, frequency = .task$task.desc$frequency)
-  forecast::auto.arima(y = data$target, ...)
+  if (ncol(data$data) != 0){
+    data$data = ts(data$data, start = 1, frequency = .task$task.desc$frequency)
+    forecast::auto.arima(y = data$target,xreg = data$data, ...)
+  } else {
+    forecast::auto.arima(y = data$target, ...)
+  }
 }
 
 #' @export
-updateLearner.fcregr.auto.arima = function(.learner, .model, .newdata, .task, ...){
-  target = getTaskTargetNames(.task)
-  data = ts(.newdata[,target], start = 1, frequency = .task$task.desc$frequency)
-  forecast::auto.arima(y = data, model = .model$learner.model,...)
+updateLearner.fcregr.auto.arima = function(.learner, .model, .newdata, .task, .truth, ...){
+
+  target = ts(.truth, start = 1, frequency = .task$task.desc$frequency)
+  if (ncol(.newdata) == 0){
+    updated = forecast::Arima(y = target, model = .model$learner.model,...)
+  } else {
+    xdata = ts(.newdata, start = 1, frequency = .task$task.desc$frequency)
+    updated = forecast::Arima(y = target, model = .model$learner.model, xreg = xdata, ... )
+  }
+  return(updated)
 }
 
 #'@export
 predictLearner.fcregr.auto.arima = function(.learner, .model, .newdata, ...){
   se.fit = .learner$predict.type == "quantile"
-  if (!se.fit){
-    p = as.numeric(forecast::forecast(.model$learner.model, ...)$mean)
+
+  if (all(.model$task.desc$n.feat == 0)){
+    p = forecast::forecast(.model$learner.model, ...)
   } else {
-    pse = forecast::forecast(.model$learner.model, ...)
-    pMean  = as.matrix(pse$mean)
-    pLower = pse$lower
-    pUpper = pse$upper
+    .newdata = ts(.newdata, start = 1, frequency = .model$task.desc$frequency)
+    p = forecast::forecast(.model$learner.model, xreg = .newdata, ...)
+  }
+  if (!se.fit){
+    p = as.numeric(p$mean)
+  } else {
+    pMean  = as.matrix(p$mean)
+    pLower = p$lower
+    pUpper = p$upper
     colnames(pMean)  = "point_forecast"
-    colnames(pLower) = paste0("lower_",pse$level)
-    colnames(pUpper) = paste0("upper_",pse$level)
+    colnames(pLower) = paste0("lower_",p$level)
+    colnames(pUpper) = paste0("upper_",p$level)
     p = cbind(pMean,pLower,pUpper)
   }
   return(p)

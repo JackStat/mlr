@@ -82,9 +82,7 @@ updateModel = function(object, task, newdata, subset, weights = NULL, ...){
     truth = newdata[, t.col, drop = TRUE]
     if (is.list(truth))
       truth = data.frame(truth)
-    #FIXME: Patchjob, need to find a way to identify that new data can be same as y.
-    if (learner$type != "fcregr" && learner$type != "mfcregr")
-      newdata = newdata[, -t.col, drop = FALSE]
+    newdata = newdata[, -t.col, drop = FALSE]
   } else {
     truth = NULL
   }
@@ -100,7 +98,8 @@ updateModel = function(object, task, newdata, subset, weights = NULL, ...){
       .learner = learner,
       .model = model,
       .newdata = newdata,
-      .task = task
+      .task = task,
+      .truth = truth
     )
   }
 
@@ -130,16 +129,16 @@ updateModel = function(object, task, newdata, subset, weights = NULL, ...){
     debug.seed = getMlrOption("debug.seed", NULL)
     if (!is.null(debug.seed))
       set.seed(debug.seed)
-    # for optwrappers we want to see the tuning / varsel logging
-    # FIXME: is case really ok for optwrapper? can we supppress then too?
-    fun1 = if (opts$show.learner.output || inherits(learner, "OptWrapper")) identity else capture.output
+    fun1 = if (opts$show.learner.output) identity else capture.output
     fun2 = if (opts$on.learner.error == "stop") identity else function(x) try(x, silent = TRUE)
     if (opts$on.learner.warning == "quiet") {
       old.warn.opt = getOption("warn")
       on.exit(options(warn = old.warn.opt))
       options(warn = -1L)
     }
-    st = system.time(fun1(learner.model = fun2(do.call(updateLearner2, pars))), gcFirst = FALSE)
+    # FIXME: If there is an = sign assigning learner.model there will be no assignment
+    ## The only way this function works is if there is s <-
+    st = system.time(fun1(learner.model <- fun2(do.call(updateLearner2, pars))), gcFirst = FALSE)
     # was there an error during training? maybe warn then
     if (is.error(learner.model) && opts$on.learner.error == "warn")
       warningf("Could not train learner %s: %s", learner$id, as.character(learner.model))
@@ -189,7 +188,7 @@ updateModel = function(object, task, newdata, subset, weights = NULL, ...){
 #'     \dQuote{prob}. The columns must be named with the class labels.
 #'  }
 #' @export
-updateLearner = function(.learner, .model, .newdata, ...) {
+updateLearner = function(.learner, .model, .newdata, .task, .truth, ...) {
   lmod = getLearnerModel(.model)
   if (inherits(lmod, "NoFeaturesModel")) {
     predict_nofeatures(.model, .newdata)
@@ -199,9 +198,7 @@ updateLearner = function(.learner, .model, .newdata, ...) {
     UseMethod("updateLearner")
   }
 }
-
-
-updateLearner2 = function(.learner, .model, .newdata, ...) {
+updateLearner2 = function(.learner, .model, .newdata, .task, .truth, ...) {
   # if we have that option enabled, set factor levels to complete levels from task
   if (.learner$fix.factors.prediction) {
     fls = .model$factor.levels
@@ -213,7 +210,7 @@ updateLearner2 = function(.learner, .model, .newdata, ...) {
       .newdata[ns] = mapply(factor, x = .newdata[ns],
                             levels = fls, SIMPLIFY = FALSE)
   }
-  u = updateLearner(.learner, .model, .newdata, ...)
+  u = updateLearner(.learner, .model, .newdata, .task, .truth, ...)
   #p = checkPredictLearnerOutput(.learner, .model, p)
   return(u)
 }
