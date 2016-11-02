@@ -61,7 +61,7 @@ makeTaskDesc.MultiForecastRegrTask = function(task, id, target, frequency) {
 
 
 #' @export
-print.ForecastRegrTask = function(x, print.weights = TRUE, ...) {
+print.MultiForecastRegrTask = function(x, print.weights = TRUE, ...) {
   td = x$task.desc
   catf("Task: %s", td$id)
   catf("Type: %s", td$type)
