@@ -65,6 +65,7 @@ print.MultiForecastRegrTask = function(x, print.weights = TRUE, ...) {
   td = x$task.desc
   catf("Task: %s", td$id)
   catf("Type: %s", td$type)
+  catf("Target: %s", paste0(td$target, collapse = " "))
   catf("Observations: %i", td$size)
   catf("Dates:\n Start: %s \n End:   %s", td$dates[1], td$dates[2])
   catf("Frequency: %i", td$frequency)
