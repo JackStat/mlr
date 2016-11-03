@@ -4,7 +4,7 @@
 \alias{updateLearner}
 \title{Update an R learner with new data.}
 \usage{
-updateLearner(.learner, .model, .newdata, ...)
+updateLearner(.learner, .model, .newdata, .task, .truth, ...)
 }
 \arguments{
 \item{.learner}{[\code{\link{RLearner}}]\cr
