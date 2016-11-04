@@ -54,6 +54,7 @@ createLagDiffFeatures = function(obj, lag = 0L, difference = 0L, difference.lag 
 }
 
 #' @export
+#' @importFrom zoo cbind.zoo
 createLagDiffFeatures.xts = function(obj, lag = 0L, difference = 0L, difference.lag = 1L,
                                      cols = NULL, target = character(0L),
                                      seasonal.lag = 0L, seasonal.difference = 0L,
@@ -198,6 +199,13 @@ createLagDiffFeatures.Task = function(obj, lag = 0L, difference = 0L,
   if (any(!work.cols.nums)){
 
     data.other = data[,!work.cols.nums, drop = FALSE]
+    # This is kind of gross, but we need to preserve our factor levels
+    ## and xts objects convert everything to character
+    facs = sapply(data.other, is.factor)
+    column.fac = colnames(data.other)[facs]
+    fac.levels = lapply(data.other[,facs, drop = FALSE], levels)
+
+    # Now turn the data.frame into an xts object
     data.other = xts::xts(data.other, order.by = row.dates)
     colnames(data.other) = work.cols[!work.cols.nums]
 
@@ -210,7 +218,12 @@ createLagDiffFeatures.Task = function(obj, lag = 0L, difference = 0L,
                                         seasonal.difference.lag = 0L,
                                         frequency = frequency, na.pad = na.pad,
                                         return.nonlag = return.nonlag)
-    data.total[[2]] = as.data.frame(data.other)
+    data.other = as.data.frame(data.other)
+    # We have to go through and reapply the appropriate levels
+    facs.lag = lapply(paste0(column.fac,"_"), function(x) stringi::stri_detect_fixed(colnames(data.other), x))
+
+    lapply(1:length(facs.lag), function(i) invisible(levels(data.other[,facs.lag[[i]]]) <<- fac.levels[i])) #<<- fac.levels[[i]]))
+    data.total[[2]] = data.other
   } else {
     if (return.nonlag)
       data.total[[2]] = data.original[,!nums,drop=FALSE]
@@ -226,7 +239,7 @@ createLagDiffFeatures.Task = function(obj, lag = 0L, difference = 0L,
   data.total = as.data.frame(data.total)
   data.total = cbind(data.original[I(nrow(data.original)-min.length + 1):nrow(data.original),target],
                      data.total)
-  colnames(data.total)[1] = target
+  colnames(data.total)[1:length(target)] = target
 
   obj = changeData(obj,data = data.total)
   obj$task.desc$pre.proc$data.original = data.original

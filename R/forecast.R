@@ -50,23 +50,30 @@ forecast = function(object, ...){
 #' print(p)
 #' getPredictionProbabilities(p)
 forecast.WrappedModel = function(object, newdata = NULL, task, h = 10, ...){
+  model = object
+  learner = model$learner
+  td = model$task.desc
 
-  if (any(c("fcregr","mfcregr") %in% object$learner$type ))
-    if (is.missing(newdata))
+  assertClass(model, classes = "WrappedModel")
+  if (any(c("fcregr","mfcregr") %in% model$learner$type ))
+    if (!is.missing(newdata))
       return(predict(object, newdata = newdata))
     else
       return(predict(object, task = task))
 
-  assertClass(object, classes = "WrappedModel")
-  model = object
-  learner = model$learner
-  td = model$task.desc
+  if (!missing(task))
+    stop("Tasks are only accepted for fcregr and mfcregr tasks.
+         forecast is only used after you have already trained your learner so only newdata is accepted")
+  assertIntegerish(h,lower = 1)
+
+
   if (is.null(td$pre.proc))
     stop("Forecasting requires lags")
 
   if (!is.null(newdata)){
+    assertDataFrame(newdata)
     t.col = match(td$target, colnames(newdata))
-    if (nrow(newdata) == h)
+    if (nrow(newdata) != h)
       stop("The new data supplied must be the length of your forecast")
   } else {
     t.col = NA
@@ -140,7 +147,7 @@ forecast.WrappedModel = function(object, newdata = NULL, task, h = 10, ...){
 }
 
 makeForecast = function(.data, .newdata, .proc.vals, .h, .td, .model, ...){
-  forecasts = rep(NA,.h)
+  forecasts = list()[1:I(.h)]
   for (i in 1:(.h)){
 
     .data = rbind(.data,NA)
@@ -162,8 +169,20 @@ makeForecast = function(.data, .newdata, .proc.vals, .h, .td, .model, ...){
     # predict
     pred = predict(.model, newdata = data.step)
 
-    forecasts[i] = pred$data[1,]
-    .data[length(.data)] = pred$data[1,]
+    if (pred$predict.type == "response"){
+      forecasts[[i]] = pred$data
+      .data[length(.data)] = pred$data$response
+    } else if (pred$predict.type == "prob"){
+      #FIXME: I don't know regex well enough to do this in one sweep
+      colnames(pred$data) = stringr::str_replace(colnames(pred$data),"prob","")
+      colnames(pred$data) = stringr::str_replace(colnames(pred$data),"[.]","")
+      forecasts[[i]] = pred$data
+      .data[length(.data)] =pred$data$response
+    } else if (pred$predict.type == "se"){
+      forecasts[[i]] = pred$data
+      .data[length(.data)] = pred$data$response
+    }
   }
-  forecasts
+
+  do.call(rbind,forecasts)
 }
